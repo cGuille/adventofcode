@@ -10,7 +10,7 @@ fn main() {
     seen_frequencies.insert(frequency);
 
     loop {
-        let file = File::open("input.txt").expect("Input file could not be opened");
+        let file = File::open("input/2018-day1.txt").expect("Input file could not be opened");
 
         for line in BufReader::new(file).lines() {
             let line = line.expect("Line could not be read from buffer");
