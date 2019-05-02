@@ -1,0 +1,7 @@
+[package]
+name = "advent-2018-day-1"
+version = "0.1.0"
+authors = ["Guillaume Charmetant <gcharmetant@tea-ebook.com>"]
+edition = "2018"
+
+[dependencies]
