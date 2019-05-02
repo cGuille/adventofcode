@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::collections::HashMap;
 
 fn main() {
     let file = File::open("input/2018-day2.txt").expect("Input file could not be opened");
