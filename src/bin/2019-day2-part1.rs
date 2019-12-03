@@ -1,75 +1,60 @@
 use std::fs;
 
 #[derive(Debug)]
-struct IntcodeProgram {
-    current: usize,
-    opcodes: Vec<usize>,
+struct Computer {
+    program: Vec<usize>,
+    memory: Vec<usize>,
+    pointer: usize,
 }
 
-enum Instruction {
-    Add(usize, usize, usize),
-    Multiply(usize, usize, usize),
-    Stop,
-}
+impl Computer {
+    fn init(source_code: &str) -> Computer {
+        let opcodes: Vec<usize> = source_code.trim().split(",").map(str_to_usize).collect();
 
-impl Instruction {
-    pub fn add(args: &[usize]) -> Instruction {
-        Instruction::Add(args[0], args[1], args[2])
-    }
-
-    pub fn multiply(args: &[usize]) -> Instruction {
-        Instruction::Multiply(args[0], args[1], args[2])
-    }
-}
-
-impl IntcodeProgram {
-    pub fn from_source(source_code: &str) -> IntcodeProgram {
-        IntcodeProgram {
-            current: 0,
-            opcodes: source_code.trim().split(",").map(str_to_usize).collect(),
+        Computer {
+            program: opcodes.clone(),
+            memory: vec![],
+            pointer: 0,
         }
     }
 
-    fn to_source(&self) -> String {
-        let opcodes: Vec<String> = self.opcodes.iter().map(ToString::to_string).collect();
-        opcodes.join(",")
-    }
+    fn run(&mut self, arg1: usize, arg2: usize) -> usize {
+        self.memory = self.program.clone();
+        self.pointer = 0;
 
-    pub fn run(&mut self) {
-        self.current = 0;
+        if self.memory.len() < 3 {
+            panic!("Invalid program: a program cannot contain less than 3 opcodes");
+        }
+
+        self.memory[1] = arg1;
+        self.memory[2] = arg2;
 
         loop {
-            if self.current >= self.opcodes.len() {
-                panic!("Unexpected end of opcode stream: {:?}", self);
+            if self.pointer >= self.memory.len() {
+                panic!("Unexpected end of program: {:?}", self);
             }
 
-            let instruction = match self.opcodes[self.current] {
-                1 => Instruction::add(&self.opcodes[self.current + 1..self.current + 4]),
-                2 => Instruction::multiply(&self.opcodes[self.current + 1..self.current + 4]),
-                99 => Instruction::Stop,
-                _ => panic!("{} is not an instruction in {:?}", self.opcodes[self.current], self),
+            match self.memory[self.pointer] {
+                1 => {
+                    let left_op_pos = self.memory[self.pointer + 1];
+                    let right_op_pos = self.memory[self.pointer + 2];
+                    let result_pos = self.memory[self.pointer + 3];
+                    self.memory[result_pos] = self.memory[left_op_pos] + self.memory[right_op_pos];
+                    self.pointer += 4;
+                },
+                2 => {
+                    let left_op_pos = self.memory[self.pointer + 1];
+                    let right_op_pos = self.memory[self.pointer + 2];
+                    let result_pos = self.memory[self.pointer + 3];
+                    self.memory[result_pos] = self.memory[left_op_pos] * self.memory[right_op_pos];
+                    self.pointer += 4;
+                },
+                99 => break,// End of program
+                _ => panic!("{} is not an instruction in {:?}", self.memory[self.pointer], self),
             };
-
-            if !self.process(instruction) {
-                break;
-            }
         }
-    }
 
-    fn process(&mut self, instruction: Instruction) -> bool {
-        match instruction {
-            Instruction::Stop => false,
-            Instruction::Add(left, right, result) => {
-                self.opcodes[result] = self.opcodes[left] + self.opcodes[right];
-                self.current += 4;
-                true
-            },
-            Instruction::Multiply(left, right, result) => {
-                self.opcodes[result] = self.opcodes[left] * self.opcodes[right];
-                self.current += 4;
-                true
-            },
-        }
+        self.memory[0]
     }
 }
 
@@ -78,13 +63,8 @@ fn str_to_usize(input: &str) -> usize {
 }
 
 fn main() {
-    let input = fs::read_to_string("input/2019-day2.txt").expect("Input file could not be opened");
-    let mut program = IntcodeProgram::from_source(&input);
+    let source_code = fs::read_to_string("input/2019-day2.txt").expect("Input file could not be opened");
+    let mut computer = Computer::init(&source_code);
 
-    program.opcodes[1] = 12;
-    program.opcodes[2] = 2;
-
-    program.run();
-
-    println!("{}", program.to_source());
+    println!("{}", computer.run(12, 2));
 }
