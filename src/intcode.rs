@@ -33,20 +33,8 @@ impl Computer {
             }
 
             match self.memory[self.pointer] {
-                1 => {
-                    let left_op_pos = self.memory[self.pointer + 1];
-                    let right_op_pos = self.memory[self.pointer + 2];
-                    let result_pos = self.memory[self.pointer + 3];
-                    self.memory[result_pos] = self.memory[left_op_pos] + self.memory[right_op_pos];
-                    self.pointer += 4;
-                }
-                2 => {
-                    let left_op_pos = self.memory[self.pointer + 1];
-                    let right_op_pos = self.memory[self.pointer + 2];
-                    let result_pos = self.memory[self.pointer + 3];
-                    self.memory[result_pos] = self.memory[left_op_pos] * self.memory[right_op_pos];
-                    self.pointer += 4;
-                }
+                1 => self.add(),
+                2 => self.multiply(),
                 99 => break, // End of program
                 _ => panic!(
                     "{} is not an instruction in {:?}",
@@ -56,6 +44,36 @@ impl Computer {
         }
 
         self.memory[0]
+    }
+
+    fn add(&mut self) {
+        let _instruction = self.consume_opcode();
+
+        let left_op_pos = self.consume_opcode();
+        let right_op_pos = self.consume_opcode();
+        let result_pos = self.consume_opcode();
+
+        let result = self.memory[left_op_pos] + self.memory[right_op_pos];
+        self.memory[result_pos] = result;
+    }
+
+    fn multiply(&mut self) {
+        let _instruction = self.consume_opcode();
+
+        let left_op_pos = self.consume_opcode();
+        let right_op_pos = self.consume_opcode();
+        let result_pos = self.consume_opcode();
+
+        let result = self.memory[left_op_pos] * self.memory[right_op_pos];
+        self.memory[result_pos] = result;
+    }
+
+    fn consume_opcode(&mut self) -> usize {
+        let opcode = self.memory[self.pointer];
+
+        self.pointer += 1;
+
+        opcode
     }
 }
 
