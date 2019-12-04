@@ -3,7 +3,7 @@ extern crate num_traits;
 use num_traits::Signed;
 use std::ops::Sub;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Point<T> {
     x: T,
     y: T,

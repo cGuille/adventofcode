@@ -1,6 +1,8 @@
 use adventofcode::geometry::Point;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::iter::FromIterator;
 use std::process;
 
 fn main() {
@@ -14,26 +16,21 @@ fn main() {
 
     let wire1 = &wires[0];
     let wire2 = &wires[1];
-    let mut intersect: Vec<Point<i32>> = vec![];
 
-    for wire1_point in wire1 {
-        for wire2_point in wire2 {
-            if wire1_point == wire2_point {
-                intersect.push(wire1_point.clone());
-            }
-        }
-    }
+    let wire1_set: HashSet<&Point<i32>> = HashSet::from_iter(wire1);
+    let wire2_set: HashSet<&Point<i32>> = HashSet::from_iter(wire2);
+    let intersection = wire1_set.intersection(&wire2_set);
 
     let mut selected: Option<Point<i32>> = None;
     let mut min_steps = std::usize::MAX;
 
-    for intersect_point in intersect {
+    for intersect_point in intersection {
         let steps_wire1 = count_points_until(&wire1, &intersect_point);
         let steps_wire2 = count_points_until(&wire2, &intersect_point);
         let steps = steps_wire1.unwrap() + steps_wire2.unwrap();
 
         if steps < min_steps {
-            selected = Some(intersect_point.clone());
+            selected = Some(*intersect_point.clone());
             min_steps = steps;
         }
     }
