@@ -5,3 +5,4 @@ authors = ["Guillaume Charmetant <gcharmetant@tea-ebook.com>"]
 edition = "2018"
 
 [dependencies]
+num-traits = "0.2"
