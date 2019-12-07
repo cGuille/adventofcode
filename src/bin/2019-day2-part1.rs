@@ -6,5 +6,12 @@ fn main() {
     let source_code = source_code.expect("Input file could not be opened");
     let mut computer = Computer::init(&source_code);
 
-    println!("{}", computer.run(12, 2));
+    computer.boot();
+
+    computer.memset(1, 12);
+    computer.memset(2, 2);
+
+    computer.run();
+
+    println!("{}", computer.memget(0));
 }

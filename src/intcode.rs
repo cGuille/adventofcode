@@ -16,17 +16,20 @@ impl Computer {
         }
     }
 
-    pub fn run(&mut self, arg1: usize, arg2: usize) -> usize {
+    pub fn boot(&mut self) {
         self.memory = self.program.clone();
         self.pointer = 0;
+    }
 
-        if self.memory.len() < 3 {
-            panic!("Invalid program: a program cannot contain less than 3 opcodes");
-        }
+    pub fn memset(&mut self, position: usize, value: usize) {
+        self.memory[position] = value;
+    }
 
-        self.memory[1] = arg1;
-        self.memory[2] = arg2;
+    pub fn memget(&mut self, position: usize) -> usize {
+        self.memory[position]
+    }
 
+    pub fn run(&mut self) {
         loop {
             if self.pointer >= self.memory.len() {
                 panic!("Unexpected end of program: {:?}", self);
@@ -42,8 +45,6 @@ impl Computer {
                 ),
             };
         }
-
-        self.memory[0]
     }
 
     fn add(&mut self) {

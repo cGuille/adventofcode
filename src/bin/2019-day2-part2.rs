@@ -11,7 +11,14 @@ fn main() {
 
     for noun in 0..100 {
         for verb in 0..100 {
-            let result = computer.run(noun, verb);
+            computer.boot();
+
+            computer.memset(1, noun);
+            computer.memset(2, verb);
+
+            computer.run();
+
+            let result = computer.memget(0);
 
             if result == searched_result {
                 println!("{}", 100 * noun + verb);
