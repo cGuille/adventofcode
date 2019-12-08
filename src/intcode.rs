@@ -50,6 +50,7 @@ enum Opcode {
     Input,
     Output,
     JumpIfTrue,
+    JumpIfFalse,
     Exit,
 }
 
@@ -61,6 +62,7 @@ impl From<[&i32; 2]> for Opcode {
             [0, 3] => Opcode::Input,
             [0, 4] => Opcode::Output,
             [0, 5] => Opcode::JumpIfTrue,
+            [0, 6] => Opcode::JumpIfFalse,
             [9, 9] => Opcode::Exit,
             _ => panic!("Unknown opcode {:?}", digits),
         }
@@ -121,6 +123,7 @@ impl Computer {
                 Opcode::Input => self.input(),
                 Opcode::Output => self.output(instruction.param_modes),
                 Opcode::JumpIfTrue => self.jump_if_true(instruction.param_modes),
+                Opcode::JumpIfFalse => self.jump_if_false(instruction.param_modes),
                 Opcode::Exit => break,
             };
         }
@@ -189,6 +192,18 @@ impl Computer {
             .expect("Invalid pointer");
 
         if condition != 0 {
+            self.pointer = jump_to;
+        }
+    }
+
+    fn jump_if_false(&mut self, param_modes: Vec<ParameterMode>) {
+        let condition = self.memconsumearg(param_modes.get(0).unwrap_or(&ParameterMode::Pointer));
+        let jump_to: usize = self
+            .memconsumearg(param_modes.get(1).unwrap_or(&ParameterMode::Pointer))
+            .try_into()
+            .expect("Invalid pointer");
+
+        if condition == 0 {
             self.pointer = jump_to;
         }
     }
