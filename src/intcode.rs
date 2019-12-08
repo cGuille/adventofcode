@@ -52,6 +52,7 @@ enum Opcode {
     JumpIfTrue,
     JumpIfFalse,
     LessThan,
+    Equals,
     Exit,
 }
 
@@ -65,6 +66,7 @@ impl From<[&i32; 2]> for Opcode {
             [0, 5] => Opcode::JumpIfTrue,
             [0, 6] => Opcode::JumpIfFalse,
             [0, 7] => Opcode::LessThan,
+            [0, 8] => Opcode::Equals,
             [9, 9] => Opcode::Exit,
             _ => panic!("Unknown opcode {:?}", digits),
         }
@@ -127,6 +129,7 @@ impl Computer {
                 Opcode::JumpIfTrue => self.jump_if_true(instruction.param_modes),
                 Opcode::JumpIfFalse => self.jump_if_false(instruction.param_modes),
                 Opcode::LessThan => self.less_than(instruction.param_modes),
+                Opcode::Equals => self.equals(instruction.param_modes),
                 Opcode::Exit => break,
             };
         }
@@ -217,6 +220,14 @@ impl Computer {
         let result_pointer: usize = self.memconsume().try_into().expect("Invalid pointer");
 
         self.memory[result_pointer] = if left_op < right_op { 1 } else { 0 };
+    }
+
+    fn equals(&mut self, param_modes: Vec<ParameterMode>) {
+        let left_op = self.memconsumearg(param_modes.get(0).unwrap_or(&ParameterMode::Pointer));
+        let right_op = self.memconsumearg(param_modes.get(1).unwrap_or(&ParameterMode::Pointer));
+        let result_pointer: usize = self.memconsume().try_into().expect("Invalid pointer");
+
+        self.memory[result_pointer] = if left_op == right_op { 1 } else { 0 };
     }
 }
 
