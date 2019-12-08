@@ -1,13 +1,15 @@
+use std::convert::TryInto;
+
 #[derive(Debug)]
 pub struct Computer {
-    program: Vec<usize>,
-    memory: Vec<usize>,
+    program: Vec<i32>,
+    memory: Vec<i32>,
     pointer: usize,
 }
 
 impl Computer {
     pub fn init(source_code: &str) -> Computer {
-        let opcodes: Vec<usize> = source_code.trim().split(",").map(str_to_usize).collect();
+        let opcodes: Vec<i32> = source_code.trim().split(",").map(str_to_i32).collect();
 
         Computer {
             program: opcodes.clone(),
@@ -21,11 +23,11 @@ impl Computer {
         self.pointer = 0;
     }
 
-    pub fn memset(&mut self, position: usize, value: usize) {
+    pub fn memset(&mut self, position: usize, value: i32) {
         self.memory[position] = value;
     }
 
-    pub fn memget(&mut self, position: usize) -> usize {
+    pub fn memget(&mut self, position: usize) -> i32 {
         self.memory[position]
     }
 
@@ -50,9 +52,9 @@ impl Computer {
     fn add(&mut self) {
         let _instruction = self.consume_opcode();
 
-        let left_op_pos = self.consume_opcode();
-        let right_op_pos = self.consume_opcode();
-        let result_pos = self.consume_opcode();
+        let left_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
+        let right_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
+        let result_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
 
         let result = self.memory[left_op_pos] + self.memory[right_op_pos];
         self.memory[result_pos] = result;
@@ -61,15 +63,15 @@ impl Computer {
     fn multiply(&mut self) {
         let _instruction = self.consume_opcode();
 
-        let left_op_pos = self.consume_opcode();
-        let right_op_pos = self.consume_opcode();
-        let result_pos = self.consume_opcode();
+        let left_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
+        let right_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
+        let result_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
 
         let result = self.memory[left_op_pos] * self.memory[right_op_pos];
         self.memory[result_pos] = result;
     }
 
-    fn consume_opcode(&mut self) -> usize {
+    fn consume_opcode(&mut self) -> i32 {
         let opcode = self.memory[self.pointer];
 
         self.pointer += 1;
@@ -78,6 +80,6 @@ impl Computer {
     }
 }
 
-fn str_to_usize(input: &str) -> usize {
+fn str_to_i32(input: &str) -> i32 {
     input.parse().expect("Could not parse into usize")
 }
