@@ -48,6 +48,7 @@ enum Opcode {
     Add,
     Multiply,
     Input,
+    Output,
     Exit,
 }
 
@@ -57,6 +58,7 @@ impl From<[&i32; 2]> for Opcode {
             [0, 1] => Opcode::Add,
             [0, 2] => Opcode::Multiply,
             [0, 3] => Opcode::Input,
+            [0, 4] => Opcode::Output,
             [9, 9] => Opcode::Exit,
             _ => panic!("Unknown opcode {:?}", digits),
         }
@@ -115,6 +117,7 @@ impl Computer {
                 Opcode::Add => self.add(instruction.param_modes),
                 Opcode::Multiply => self.multiply(instruction.param_modes),
                 Opcode::Input => self.input(),
+                Opcode::Output => self.output(instruction.param_modes),
                 Opcode::Exit => break,
             };
         }
@@ -156,6 +159,11 @@ impl Computer {
         let result_pointer: usize = self.memconsume().try_into().expect("Invalid pointer");
 
         self.memory[result_pointer] = left_op * right_op;
+    }
+
+    fn output(&mut self, param_modes: Vec<ParameterMode>) {
+        let value = self.memconsumearg(param_modes.get(0).unwrap_or(&ParameterMode::Pointer));
+        println!("{}", value);
     }
 
     fn input(&mut self) {
