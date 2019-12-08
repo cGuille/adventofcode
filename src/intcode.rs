@@ -1,4 +1,5 @@
 use std::convert::TryInto;
+use std::io::{stdin, stdout, Write};
 
 #[derive(Debug)]
 pub struct Computer {
@@ -46,14 +47,16 @@ impl From<i32> for Instruction {
 enum Opcode {
     Add,
     Multiply,
+    Input,
     Exit,
 }
 
-impl From<[&i32;2]> for Opcode {
-    fn from(digits: [&i32;2]) -> Self {
+impl From<[&i32; 2]> for Opcode {
+    fn from(digits: [&i32; 2]) -> Self {
         match digits {
             [0, 1] => Opcode::Add,
             [0, 2] => Opcode::Multiply,
+            [0, 3] => Opcode::Input,
             [9, 9] => Opcode::Exit,
             _ => panic!("Unknown opcode {:?}", digits),
         }
@@ -111,6 +114,7 @@ impl Computer {
             match instruction.opcode {
                 Opcode::Add => self.add(instruction.param_modes),
                 Opcode::Multiply => self.multiply(instruction.param_modes),
+                Opcode::Input => self.input(),
                 Opcode::Exit => break,
             };
         }
@@ -152,6 +156,18 @@ impl Computer {
         let result_pointer: usize = self.memconsume().try_into().expect("Invalid pointer");
 
         self.memory[result_pointer] = left_op * right_op;
+    }
+
+    fn input(&mut self) {
+        let result_pointer: usize = self.memconsume().try_into().expect("Invalid pointer");
+
+        let mut value = String::new();
+        print!("> ");
+        stdout().flush().expect("I/O error");
+
+        stdin().read_line(&mut value).expect("Invalid input");
+
+        self.memory[result_pointer] = value.trim().parse().expect("Invalid input");
     }
 }
 
