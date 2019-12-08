@@ -49,34 +49,34 @@ impl Computer {
         }
     }
 
-    fn add(&mut self) {
-        let _instruction = self.consume_opcode();
+    fn memconsume(&mut self) -> i32 {
+        let value = self.memory[self.pointer];
 
-        let left_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
-        let right_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
-        let result_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
+        self.pointer += 1;
+
+        value
+    }
+
+    fn add(&mut self) {
+        let _instruction = self.memconsume();
+
+        let left_op_pos: usize = self.memconsume().try_into().expect("Invalid position");
+        let right_op_pos: usize = self.memconsume().try_into().expect("Invalid position");
+        let result_pos: usize = self.memconsume().try_into().expect("Invalid position");
 
         let result = self.memory[left_op_pos] + self.memory[right_op_pos];
         self.memory[result_pos] = result;
     }
 
     fn multiply(&mut self) {
-        let _instruction = self.consume_opcode();
+        let _instruction = self.memconsume();
 
-        let left_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
-        let right_op_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
-        let result_pos: usize = self.consume_opcode().try_into().expect("Invalid position");
+        let left_op_pos: usize = self.memconsume().try_into().expect("Invalid position");
+        let right_op_pos: usize = self.memconsume().try_into().expect("Invalid position");
+        let result_pos: usize = self.memconsume().try_into().expect("Invalid position");
 
         let result = self.memory[left_op_pos] * self.memory[right_op_pos];
         self.memory[result_pos] = result;
-    }
-
-    fn consume_opcode(&mut self) -> i32 {
-        let opcode = self.memory[self.pointer];
-
-        self.pointer += 1;
-
-        opcode
     }
 }
 
