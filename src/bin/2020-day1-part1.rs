@@ -1,20 +1,28 @@
+use adventofcode::{parse_lines, ParseLinesError};
 use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::num::ParseIntError;
+use std::io;
 
-fn main() {
-    let file = File::open("input/2020-day1.txt").expect("Input file could not be opened");
+#[derive(Debug)]
+enum MainError {
+    Io(io::Error),
+    InputParsing(ParseLinesError),
+    NotFound,
+}
 
-    let entries: Result<Vec<u64>, String> = BufReader::new(file)
-        .lines()
-        .map(|line| {
-            line.map_err(|e| e.to_string())?
-                .parse()
-                .map_err(|e: ParseIntError| e.to_string())
-        })
-        .collect();
+impl From<ParseLinesError> for MainError {
+    fn from(error: ParseLinesError) -> Self {
+        Self::InputParsing(error)
+    }
+}
 
-    let entries = entries.unwrap();
+impl From<io::Error> for MainError {
+    fn from(error: io::Error) -> Self {
+        Self::Io(error)
+    }
+}
+
+fn main() -> Result<(), MainError> {
+    let entries: Vec<u64> = parse_lines(File::open("input/2020-day1.txt")?)?;
 
     for (index1, entry1) in entries.iter().enumerate() {
         for (index2, entry2) in entries.iter().enumerate() {
@@ -24,10 +32,10 @@ fn main() {
 
             if entry1 + entry2 == 2020 {
                 println!("{}", entry1 * entry2);
-                return;
+                return Ok(());
             }
         }
     }
 
-    println!("Not found");
+    Err(MainError::NotFound)
 }
